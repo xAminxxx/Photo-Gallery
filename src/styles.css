@@ -1,1 +1,50 @@
-/* You can add global styles to this file, and also import other style files */
+/* src/styles.css */
+/* Reset and base styles */
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  font-family: "Roboto", "Helvetica Neue", sans-serif;
+  background: linear-gradient(to right bottom, #2c3e50, #000000);
+  color: #ffffff;
+  line-height: 1.6;
+}
+/* Global container styling */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  .container {
+    padding: 0.5rem;
+  }
+}

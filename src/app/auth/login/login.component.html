@@ -1,0 +1,46 @@
+<!-- login.component.html -->
+<div class="login-page">
+  <div class="login-container">
+    <h1 class="login-title">Welcome Back!</h1>
+    <form class="auth-form" (ngSubmit)="login()">
+      <div class="input-group">
+        <label class="input-label" for="email">Email</label>
+        <input
+          class="input-field"
+          type="email"
+          id="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="Enter your email"
+          required
+        />
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="password">Password</label>
+        <input
+          class="input-field"
+          type="password"
+          id="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="Enter your password"
+          required
+        />
+      </div>
+
+      <button class="submit-btn" type="submit" [disabled]="!email || !password">
+        Login
+      </button>
+
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <div class="auth-link-container">
+        <span>New to our platform? </span>
+        <a class="auth-link" routerLink="/signup">Create account</a>
+      </div>
+    </form>
+  </div>
+</div>

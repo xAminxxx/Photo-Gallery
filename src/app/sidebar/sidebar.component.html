@@ -1,0 +1,81 @@
+<div class="page-wrapper chiller-theme">
+  <!-- Show Sidebar Button -->
+  <a id="show-sidebar" class="btn btn-sm btn-dark" (click)="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+  </a>
+
+  <!-- Sidebar Navigation -->
+  <nav id="sidebar" class="sidebar-wrapper">
+    <div class="sidebar-content">
+      <!-- Sidebar Brand -->
+      <div class="sidebar-brand">
+        <a href="/home">Photo Gallery</a>
+        <!-- Close Sidebar Button -->
+        <div id="close-sidebar" (click)="toggleSidebar()">
+          <i class="fas fa-times"></i>
+        </div>
+      </div>
+
+      <!-- Sidebar Header with User Info -->
+      <div class="sidebar-header">
+        <div class="user-pic">
+          <img class="user-pic" src="https://randomuser.me/api/portraits/men/1.jpg" alt="User picture">
+        </div>
+        <div class="user-info">
+          <span class="user-name">
+            <strong>user-Name</strong>
+          </span>
+          <span class="user-role">
+            Admin
+          </span>
+        </div>
+      </div>
+
+      <!-- Sidebar Menu -->
+      <div class="sidebar-menu">
+        <ul>
+          <li class="header-menu">
+            <span>General</span>
+          </li>
+          <li>
+            <a href="/home">
+              <i class="fa fa-home"></i>
+              <span>Home</span>
+            </a>
+          </li>
+          <li>
+            <a href="/profile">
+              <i class="fa fa-user"></i>
+              <span>Profile</span>
+            </a>
+          </li>
+          <li>
+            <a href="/dashboard">
+              <i class="fa fa-tachometer-alt"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="/about">
+              <i class="fa fa-info-circle"></i>
+              <span>About</span>
+            </a>
+          </li>
+          <li>
+            <a href="/help">
+              <i class="fa fa-question-circle"></i>
+              <span>Help</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <a href="#" (click)="SignOut($event)">
+        <i class="fa fa-power-off"></i> Sign Out
+      </a>
+    </div>
+  </nav>
+</div>

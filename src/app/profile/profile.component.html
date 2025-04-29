@@ -1,0 +1,82 @@
+<!-- profile.component.html -->
+<div class="profile-page">
+    <div class="profile-container">
+        <h1 class="profile-title">Your Profile</h1>
+
+        <div *ngIf="loading" class="loading-message">
+            Loading profile...
+        </div>
+
+        <div *ngIf="!loading && currentUser" class="profile-content">
+            <div *ngIf="!editMode" class="profile-info">
+                <!-- Profile View Mode -->
+                <div class="profile-field">
+                    <label>Profile Photo:</label>
+                    <img [src]="currentUser.photoURL" class="profile-photo" alt="Profile Photo"
+                        (error)="handleImageError($event)">
+                </div>
+
+                <div class="profile-field">
+                    <label>Username:</label>
+                    <span>{{ currentUser.username }}</span>
+                </div>
+
+                <div class="profile-field">
+                    <label>Email:</label>
+                    <span>{{ currentUser.email }}</span>
+                </div>
+
+                <div class="profile-field">
+                    <label>Member Since:</label>
+                    <span>{{ currentUser.createdAt?.toDate() | date }}</span>
+                </div>
+
+                <div class="profile-actions">
+                    <button class="btn-edit" (click)="editMode = true">Edit Profile</button>
+                    <button class="btn-logout" (click)="logout()">Log Out</button>
+                </div>
+            </div>
+
+            <div *ngIf="editMode" class="profile-edit">
+                <!-- Profile Edit Mode -->
+                <div class="input-group">
+                    <label class="input-label">Profile Photo</label>
+                    <div class="photo-upload">
+                        <img [src]="previewUrl || currentUser.photoURL" class="profile-photo-preview"
+                            alt="Profile Preview" (error)="handleImageError($event)">
+                        <input type="file" (change)="onFileSelected($event)" accept="image/*" id="profilePhoto">
+                        <label for="profilePhoto" class="upload-button">
+                            Choose New Photo
+                        </label>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label" for="username">New Username</label>
+                    <input class="input-field" type="text" id="username" [(ngModel)]="newUsername" name="username"
+                        placeholder="Enter new username" required minlength="3">
+                </div>
+
+                <div class="edit-actions">
+                    <button class="btn-save"
+                        [disabled]="(newUsername === currentUser.username && !selectedFile) || loading"
+                        (click)="updateUsername()">
+                        {{ loading ? 'Saving...' : 'Save Changes' }}
+                    </button>
+                    <button class="btn-cancel" [disabled]="loading"
+                        (click)="editMode = false; newUsername = currentUser.username">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div *ngIf="errorMessage" class="error-message">
+                {{ errorMessage }}
+            </div>
+            <div *ngIf="successMessage" class="success-message">
+                {{ successMessage }}
+            </div>
+        </div>
+    </div>
+</div>
