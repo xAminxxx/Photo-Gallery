@@ -1,1 +1,58 @@
-<p>dashboard works!</p>
+<!-- dashboard.component.html -->
+<div class="dashboard-container">
+    <app-sidebar [isLoggedIn]="isLoggedIn" class="sidebar"></app-sidebar>
+
+    <main class="content">
+        <header class="dashboard-header" aria-labelledby="dashboard-title">
+            <h1 id="dashboard-title" class="dashboard-title">Visual Analytics Dashboard</h1>
+        </header>
+
+        <!-- Chart Section -->
+        <section class="chart-section" *ngIf="!loading && !error && photos.length > 0" aria-labelledby="chart-title">
+            <h2 id="chart-title" class="section-title">Likes Distribution</h2>
+            <div class="chart-container" aria-label="Bar chart showing likes distribution">
+                <canvas baseChart [data]="barChartData" [options]="barChartOptions" type="bar" role="img"
+                    aria-label="Visual representation of photo likes">
+                </canvas>
+            </div>
+        </section>
+
+        <!-- Top Photos Section -->
+        <section class="photos-section" aria-labelledby="photos-title">
+            <h2 id="photos-title" class="section-title">Top 5 Most Liked Photos</h2>
+
+            <div *ngIf="loading" class="loading-state" aria-live="polite">
+                <div class="spinner" role="status" aria-label="Loading"></div>
+                <p>Loading top photos...</p>
+            </div>
+
+            <div *ngIf="error" class="error-state" role="alert" aria-live="assertive">
+                ⚠️ {{ error }}
+            </div>
+
+            <div *ngIf="!loading && !error" class="photo-grid" [class.has-data]="photos.length > 0">
+                <article *ngFor="let photo of photos" class="photo-card" role="article"
+                    [attr.aria-labelledby]="'photo-' + photo.id">
+                    <div class="card-image">
+                        <img [src]="photo.src.large" [alt]="photo.alt || 'Photo by ' + photo.photographer"
+                            loading="lazy" decoding="async" fetchpriority="high">
+                    </div>
+                    <div class="card-body">
+                        <h3 class="photographer" id="photo-{{photo.id}}">
+                            {{ photo.photographer }}
+                        </h3>
+                        <div class="likes-count">
+                            <span class="heart" aria-hidden="true">❤</span>
+                            <span class="sr-only">Likes:</span>
+                            <span>{{ photo.likes | number }} Likes</span>
+                        </div>
+                    </div>
+                </article>
+
+                <div *ngIf="photos.length === 0" class="no-results" aria-live="polite">
+                    No photos found. Start liking photos to see them here!
+                </div>
+            </div>
+        </section>
+    </main>
+</div>

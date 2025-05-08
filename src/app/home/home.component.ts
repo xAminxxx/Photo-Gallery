@@ -1,18 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { createClient, PhotosWithTotalResults } from 'pexels';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../environments/environment';
 import { AuthService } from '../services/auth.service';
+import { PhotoService } from '../services/photo.service';
 import { CommonModule } from '@angular/common';
-import { SidebarComponent } from '../sidebar/sidebar.component'; // Import SidebarComponent
+import { SidebarComponent } from '../sidebar/sidebar.component';
+import { Observable, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
   standalone: true,
-  imports: [CommonModule, SidebarComponent], // Include SidebarComponent here
+  imports: [CommonModule, SidebarComponent],
 })
 export class HomeComponent implements OnInit {
   photos: any[] = [];
@@ -21,27 +22,17 @@ export class HomeComponent implements OnInit {
   private readonly pexelsClient = createClient(environment.pexelsApiKey);
   isLoggedIn = false;
 
-  private readonly LIKES_KEY = 'pexels_likes';
-  private readonly DOWNLOADS_KEY = 'pexels_downloads';
-
   constructor(
-    private http: HttpClient,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private photoService: PhotoService
   ) {}
 
   ngOnInit(): void {
     this.loadPopularPhotos();
-
     this.authService.isAuthenticated().subscribe((loggedIn) => {
       this.isLoggedIn = loggedIn;
     });
-  }
-
-  signOut(): void {
-    this.authService.logout();
-    this.isLoggedIn = false;
-    this.router.navigate(['/login']);
   }
 
   async loadPopularPhotos(): Promise<void> {
@@ -50,13 +41,19 @@ export class HomeComponent implements OnInit {
         per_page: 30,
         page: 1,
       });
+
       if ('photos' in response) {
         this.photos = (response as PhotosWithTotalResults).photos.map(
-          (photo: any) => ({
+          (photo) => ({
             ...photo,
-            likes: this.getStoredLikes(photo.id),
-            downloads: this.getStoredDownloads(photo.id),
-            liked: this.hasLiked(photo.id),
+            likes$: this.photoService.getLikesCount(photo.id.toString()),
+            downloads$: this.photoService.getDownloadsCount(
+              photo.id.toString()
+            ),
+            hasLiked$: this.photoService.hasUserLiked(photo.id.toString()),
+            hasDownloaded$: this.photoService.hasUserDownloaded(
+              photo.id.toString()
+            ),
           })
         );
       }
@@ -73,19 +70,10 @@ export class HomeComponent implements OnInit {
       return;
     }
 
-    const currentLikeStatus = this.hasLiked(photoId);
-
-    if (currentLikeStatus) {
-      const likes = Math.max(this.getStoredLikes(photoId) - 1, 0);
-      localStorage.setItem(`${this.LIKES_KEY}_${photoId}`, likes.toString());
-      localStorage.removeItem(`liked_${photoId}`);
-    } else {
-      const likes = this.getStoredLikes(photoId) + 1;
-      localStorage.setItem(`${this.LIKES_KEY}_${photoId}`, likes.toString());
-      localStorage.setItem(`liked_${photoId}`, 'true');
-    }
-
-    this.updatePhotoStats(photoId, 'likes', this.getStoredLikes(photoId));
+    this.photoService.toggleLike(photoId.toString()).subscribe({
+      next: () => this.updatePhotoState(photoId),
+      error: (err) => console.error('Error toggling like:', err),
+    });
   }
 
   downloadPhoto(photo: any): void {
@@ -94,60 +82,50 @@ export class HomeComponent implements OnInit {
       return;
     }
 
-    if (!this.hasDownloaded(photo.id)) {
-      const downloads = this.getStoredDownloads(photo.id) + 1;
-      localStorage.setItem(
-        `${this.DOWNLOADS_KEY}_${photo.id}`,
-        downloads.toString()
-      );
-      localStorage.setItem(`downloaded_${photo.id}`, 'true');
-      this.updatePhotoStats(photo.id, 'downloads', downloads);
-    }
-
-    const link = document.createElement('a');
-    link.href = photo.src.original;
-    link.download = `photo-${photo.id}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    this.photoService
+      .recordDownload(photo.id.toString())
+      .pipe(
+        switchMap(() => {
+          const link = document.createElement('a');
+          link.href = photo.src.original;
+          link.download = `photo-${photo.id}.jpg`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          return this.photoService.getDownloadsCount(photo.id.toString());
+        })
+      )
+      .subscribe({
+        next: (downloads) => this.updatePhotoDownloads(photo.id, downloads),
+        error: (err) => console.error('Download tracking failed:', err),
+      });
   }
 
-  private getStoredLikes(photoId: number): number {
-    return parseInt(
-      localStorage.getItem(`${this.LIKES_KEY}_${photoId}`) || '0',
-      10
-    );
-  }
-
-  private getStoredDownloads(photoId: number): number {
-    return parseInt(
-      localStorage.getItem(`${this.DOWNLOADS_KEY}_${photoId}`) || '0',
-      10
-    );
-  }
-
-  private updatePhotoStats(
-    photoId: number,
-    type: 'likes' | 'downloads',
-    value: number
-  ): void {
+  private updatePhotoState(photoId: number): void {
     this.photos = this.photos.map((photo) => {
       if (photo.id === photoId) {
         return {
           ...photo,
-          [type]: value,
-          liked: type === 'likes' ? this.hasLiked(photoId) : photo.liked,
+          likes$: this.photoService.getLikesCount(photoId.toString()),
+          hasLiked$: this.photoService.hasUserLiked(photoId.toString()),
         };
       }
       return photo;
     });
   }
 
-  private hasLiked(photoId: number): boolean {
-    return localStorage.getItem(`liked_${photoId}`) === 'true';
+  private updatePhotoDownloads(photoId: number, downloads: number): void {
+    this.photos = this.photos.map((photo) => {
+      if (photo.id === photoId) {
+        return { ...photo, downloads };
+      }
+      return photo;
+    });
   }
 
-  private hasDownloaded(photoId: number): boolean {
-    return localStorage.getItem(`downloaded_${photoId}`) === 'true';
+  signOut(): void {
+    this.authService.logout();
+    this.isLoggedIn = false;
+    this.router.navigate(['/login']);
   }
 }

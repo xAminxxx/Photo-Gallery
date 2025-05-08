@@ -1,1 +1,53 @@
-<p>help works!</p>
+<div class="help-container">
+    <app-sidebar [isLoggedIn]="isLoggedIn" class="sidebar"></app-sidebar>
+
+    <main class="content">
+        <section class="help-section" aria-labelledby="help-title">
+            <h1 id="help-title" class="section-title">Help & Support</h1>
+
+            <div class="faq-grid">
+                <article class="faq-card">
+                    <h2 class="faq-question">How do I track photo likes?</h2>
+                    <p class="faq-answer">
+                        Likes are automatically tracked when users interact with photos.
+                        You can view like counts in both the dashboard and individual photo details.
+                    </p>
+                </article>
+
+                <article class="faq-card">
+                    <h2 class="faq-question">Where does the photo data come from?</h2>
+                    <p class="faq-answer">
+                        Photo metadata is sourced from Pexels API, while engagement data
+                        is tracked through our Firebase backend.
+                    </p>
+                </article>
+
+                <article class="faq-card">
+                    <h2 class="faq-question">How often is data updated?</h2>
+                    <p class="faq-answer">
+                        All engagement data updates in real-time. Photo metadata updates
+                        when you refresh the page.
+                    </p>
+                </article>
+
+                <article class="faq-card">
+                    <h2 class="faq-question">Can I export my analytics data?</h2>
+                    <p class="faq-answer">
+                        Yes! Use the export button in the dashboard to download CSV
+                        reports of your analytics data.
+                    </p>
+                </article>
+            </div>
+
+            <div class="contact-section">
+                <h2 class="section-subtitle">Need More Help?</h2>
+                <p>Contact our support team:</p>
+                <ul class="contact-list">
+                    <li>Email: support.photogallery.com</li>
+                    <li>Phone: +1 (555) 123-4567</li>
+                    <li>Live Chat: Available during business hours</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+</div>

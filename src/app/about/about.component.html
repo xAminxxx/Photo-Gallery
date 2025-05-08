@@ -1,15 +1,37 @@
-<div class="container">
-    <h1>About Photo Gallery</h1>
-    <p>
-        A modern photo management application built with Angular and Firebase.
-    </p>
-    <div class="features">
-        <h2>Features</h2>
-        <ul>
-            <li>Secure user authentication with Firebase</li>
-            <li>Cloud-based photo storage</li>
-            <li>Real-time updates and sync</li>
-            <li>Responsive design</li>
-        </ul>
-    </div>
+<div class="about-container">
+    <app-sidebar [isLoggedIn]="isLoggedIn" class="sidebar"></app-sidebar>
+
+    <main class="content">
+        <section class="about-section" aria-labelledby="about-title">
+            <h1 id="about-title" class="section-title">About Photo Analytics</h1>
+
+            <article class="about-card">
+                <h2 class="card-title">Our Mission</h2>
+                <p class="card-text">
+                    Photo Analytics provides powerful insights into visual content engagement,
+                    helping photographers and content creators understand what resonates with their audience.
+                </p>
+            </article>
+
+            <article class="about-card">
+                <h2 class="card-title">Features</h2>
+                <ul class="feature-list">
+                    <li>Real-time like tracking</li>
+                    <li>Download analytics</li>
+                    <li>Top content ranking</li>
+                    <li>Interactive visualizations</li>
+                </ul>
+            </article>
+
+            <article class="about-card">
+                <h2 class="card-title">Technology Stack</h2>
+                <div class="tech-stack">
+                    <div class="tech-item">Angular</div>
+                    <div class="tech-item">Firebase</div>
+                    <div class="tech-item">Chart.js</div>
+                    <div class="tech-item">Pexels API</div>
+                </div>
+            </article>
+        </section>
+    </main>
 </div>

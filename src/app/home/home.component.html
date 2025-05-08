@@ -1,30 +1,30 @@
 <div class="home-container">
-  <!-- Sidebar -->
   <app-sidebar [isLoggedIn]="isLoggedIn" class="sidebar"></app-sidebar>
 
-  <!-- Photos Grid -->
   <div *ngIf="!loading && !error" class="photos-grid">
     <div *ngFor="let photo of photos" class="photo-card-container">
       <div class="card">
         <div class="wrapper">
           <h2>{{ photo.photographer }}</h2>
-          <!-- Updated img tag with responsive sources -->
           <img [srcset]="photo.src.medium + ' 800w, ' + photo.src.large + ' 1200w'"
             sizes="(max-width: 600px) 800px, 1200px" [src]="photo.src.large" [alt]="photo.alt" class="card-image"
             loading="lazy">
 
           <div class="photo-actions">
-            <button (click)="toggleLike(photo.id)" [ngClass]="{ liked: photo.liked, unliked: !photo.liked }">
-              <span [innerHTML]="photo.liked ? '❤️' : '🤍'"></span>
-              <span>Like ({{ photo.likes }})</span>
+            <button (click)="toggleLike(photo.id)" [class.liked]="photo.hasLiked$ | async">
+              <span>{{ (photo.hasLiked$ | async) ? '❤️' : '🤍' }}</span>
+              <span>Like ({{ photo.likes$ | async }})</span>
             </button>
-            <button (click)="downloadPhoto(photo)">
+            <button (click)="downloadPhoto(photo)" [class.downloaded]="photo.hasDownloaded$ | async">
               <span>⬇️</span>
-              <span>Download ({{ photo.downloads }})</span>
+              <span>Download ({{ photo.downloads$ | async }})</span>
             </button>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <div *ngIf="loading" class="loading">Loading photos...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
 </div>

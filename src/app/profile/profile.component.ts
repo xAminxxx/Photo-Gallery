@@ -2,12 +2,6 @@ import { Component, inject, OnDestroy, OnInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  Storage,
-  ref,
-  uploadBytes,
-  getDownloadURL,
-} from '@angular/fire/storage';
-import {
   Firestore,
   doc,
   getDoc,
@@ -16,6 +10,7 @@ import {
 import { AuthService } from '../services/auth.service';
 import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-profile',
@@ -29,7 +24,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private router = inject(Router);
   private ngZone = inject(NgZone);
-  private storage = inject(Storage);
 
   // Component state
   selectedFile: File | null = null;
@@ -42,9 +36,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
   newUsername = '';
   private authSub!: Subscription;
 
-  // Replace with your actual Firebase Storage URL
+  // Cloudinary default avatar
   defaultAvatar =
-    'https://firebasestorage.googleapis.com/v0/b/task-manager-d765f.appspot.com/o/defaults%2Fdefault-avatar.png?alt=media';
+    'https://res.cloudinary.com/drh28rj03/image/upload/v1625678901/default-avatar.png';
 
   get shouldDisableSave(): boolean {
     if (!this.currentUser) return true;
@@ -53,6 +47,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.loading
     );
   }
+
   ngOnInit(): void {
     this.authSub = this.authService.authState$.subscribe((user) => {
       this.ngZone.run(() => {
@@ -95,7 +90,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   async updateUsername(): Promise<void> {
-    // Validate changes
     if (
       !this.currentUser ||
       (this.newUsername === this.currentUser.username && !this.selectedFile)
@@ -110,14 +104,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     try {
       let photoURL = this.currentUser.photoURL;
 
-      // Upload new photo if selected
+      // Upload new photo to Cloudinary if selected
       if (this.selectedFile) {
-        const storageRef = ref(
-          this.storage,
-          `profile-photos/${this.currentUser.id}`
-        );
-        const snapshot = await uploadBytes(storageRef, this.selectedFile);
-        photoURL = await getDownloadURL(snapshot.ref);
+        photoURL = await this.uploadToCloudinary(this.selectedFile);
       }
 
       // Update Firestore transaction
@@ -168,13 +157,31 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
+  private async uploadToCloudinary(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', environment.cloudinary.uploadPreset);
+
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${environment.cloudinary.cloudName}/image/upload`,
+      { method: 'POST', body: formData }
+    );
+
+    if (!response.ok) {
+      throw new Error('Image upload failed');
+    }
+
+    const data = await response.json();
+    return data.secure_url;
+  }
+
   handleImageError(event: Event) {
     (event.target as HTMLImageElement).src = this.defaultAvatar;
   }
 
   logout(): void {
     this.authService.logout().subscribe({
-      next: () => this.ngZone.run(() => this.router.navigate(['/login'])),
+      next: () => this.ngZone.run(() => this.router.navigate(['/home'])),
       error: (err) => this.ngZone.run(() => (this.errorMessage = err.message)),
     });
   }
@@ -192,6 +199,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.authSub.unsubscribe();
     }
   }
+
   onCancel() {
     this.editMode = false;
     this.newUsername = this.currentUser.username;

@@ -19,15 +19,10 @@
       <!-- Sidebar Header with User Info -->
       <div class="sidebar-header">
         <div class="user-pic">
-          <img class="user-pic" src="https://randomuser.me/api/portraits/men/1.jpg" alt="User picture">
+          <img class="user-pic" [src]="userPhotoUrl || defaultAvatar" alt="User picture">
         </div>
         <div class="user-info">
-          <span class="user-name">
-            <strong>user-Name</strong>
-          </span>
-          <span class="user-role">
-            Admin
-          </span>
+          <span *ngIf="username">{{ username }}</span>
         </div>
       </div>
 
@@ -73,7 +68,7 @@
 
     <!-- Sidebar Footer -->
     <div class="sidebar-footer">
-      <a href="#" (click)="SignOut($event)">
+      <a href="/home" (click)="SignOut($event)">
         <i class="fa fa-power-off"></i> Sign Out
       </a>
     </div>
