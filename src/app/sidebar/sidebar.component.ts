@@ -92,6 +92,7 @@ export class SidebarComponent implements AfterViewInit, OnDestroy {
 
   toggleSidebar(): void {
     const pageWrapper = document.querySelector('.page-wrapper');
+
     if (pageWrapper) {
       pageWrapper.classList.toggle('toggled');
     }

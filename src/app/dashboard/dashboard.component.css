@@ -7,7 +7,7 @@
 
 .content {
   flex: 1;
-  padding: 2rem 3rem;
+  padding: 2rem 3rem 2rem 15rem;
   max-width: 1440px;
   margin: 0 auto;
   display: flex;
@@ -60,9 +60,16 @@
 }
 
 .photo-grid {
-  display: grid;
+  /* display: grid;
   gap: 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); */
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
 }
 
 .photo-card {
@@ -71,6 +78,7 @@
   background: white;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   border: 1px solid #f1f3f5;
+  min-width: 250px;
 }
 
 .photo-card:hover {
