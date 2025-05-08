@@ -64,6 +64,7 @@
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 1rem;
   margin-top: 1rem;
+  color: #333;
 }
 
 .tech-item {

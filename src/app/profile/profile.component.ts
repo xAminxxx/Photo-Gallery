@@ -11,11 +11,12 @@ import { AuthService } from '../services/auth.service';
 import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { environment } from '../environments/environment';
+import { SidebarComponent } from '../sidebar/sidebar.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, SidebarComponent],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css'],
 })
@@ -24,6 +25,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private router = inject(Router);
   private ngZone = inject(NgZone);
+  isLoggedIn = false;
 
   // Component state
   selectedFile: File | null = null;

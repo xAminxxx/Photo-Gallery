@@ -46,20 +46,7 @@ export class AuthService {
     let user: User | null = null;
 
     try {
-      // Step 1: Check username uniqueness
-      await runTransaction(this.firestore, async (transaction) => {
-        const usernameRef = doc(this.firestore, 'usernames', username);
-        const usernameDoc = await transaction.get(usernameRef);
-
-        if (usernameDoc.exists()) {
-          throw new Error('username-already-exists');
-        }
-
-        // Reserve username with empty user ID initially
-        transaction.set(usernameRef, { userId: '' });
-      });
-
-      // Step 2: Create auth user
+      // 1. First create auth user
       const userCredential = await createUserWithEmailAndPassword(
         this.auth,
         email,
@@ -67,11 +54,18 @@ export class AuthService {
       );
       user = userCredential.user;
 
-      // Step 3: Update Firestore with user data
+      // 2. Atomic Firestore operations
       await runTransaction(this.firestore, async (transaction) => {
-        // Update username reservation with actual user ID
+        // Check username availability
         const usernameRef = doc(this.firestore, 'usernames', username);
-        transaction.update(usernameRef, { userId: user!.uid });
+        const usernameDoc = await transaction.get(usernameRef);
+
+        if (usernameDoc.exists()) {
+          throw new Error('username-already-exists');
+        }
+
+        // Create username document with actual UID
+        transaction.set(usernameRef, { userId: user!.uid });
 
         // Create user document
         const userRef = doc(this.firestore, 'users', user!.uid);
@@ -90,7 +84,6 @@ export class AuthService {
       // Cleanup if any part failed
       if (user) {
         await deleteUser(user);
-        await this.deleteUsernameReservation(username);
       }
       throw error;
     }
